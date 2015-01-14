@@ -1,0 +1,22 @@
+INFN SOS 2013 - Example - Neural Network and Boosted Decision Tree
+
+Description
+-----------
+Discriminate between pp -> H -> ZZ -> 4l and pp -> ZZ -> 4l
+
+Setup
+-------
+First set up a link to the ntuples
+
+      ln -s ../ntuples/*.root .
+
+To run:
+-------
+     python train.py
+
+output:
+	rgs.root
+
+To plot:
+--------
+     python plot.py

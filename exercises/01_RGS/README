@@ -1,0 +1,21 @@
+CMSDAS Bari INFN 2015 - Random Grid Search
+
+Description
+-----------
+Discriminate between pp -> H -> ZZ -> 4l and pp -> ZZ -> 4l
+events using box cuts.
+
+To run:
+-------
+     python train.py
+
+output:
+	rgs.root
+
+To plot:
+--------
+     python plot.py
+
+output:
+     fig_rgs.png
+     fig_rgs.pdf

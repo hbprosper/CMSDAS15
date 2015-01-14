@@ -1,0 +1,9 @@
+Illustration of PyRoot
+----------------------
+Use RooFit to fit a compilation of Type Ia red shift, distance modulus data 
+(z, mu)
+
+  python fitTypeIa.py
+
+
+	

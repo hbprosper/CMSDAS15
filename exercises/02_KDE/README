@@ -1,0 +1,17 @@
+CMSDAD Bari INFN 2015 - Kernel Density Estimation
+
+Description
+-----------
+Discriminate between pp -> H -> ZZ -> 4l and pp -> ZZ -> 4l
+
+To run:
+-------
+     python train.py
+
+output:
+	skde.cpp	KDE for signal
+	bkde.cpp	KDE for background
+
+To plot:
+--------
+     python plot.py
