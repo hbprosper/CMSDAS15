@@ -5,8 +5,8 @@
 # Created: 29 May 2013 Bari, Italy, HBP
 #------------------------------------------------------------------------------
 import os, sys
-from ROOT import *
 from string import *
+from ROOT import *
 #-------------------------------------------------------------------------
 def readTable(filename, nrows=0):
     def convert(s):
@@ -47,7 +47,7 @@ def readTable(filename, nrows=0):
 #-------------------------------------------------------------------------
 def main():
     print "\n", "="*80
-    print "\tcreate ntuple from text file"
+    print "\tcreate a simple ntuple from a text file"
     print "="*80
     argv = sys.argv[1:]
     if len(argv) == 0:
