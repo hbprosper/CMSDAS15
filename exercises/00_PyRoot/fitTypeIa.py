@@ -3,7 +3,7 @@
 # Exercise 0 - Fit Type Ia supernovae data
 # Created sometime in the 21st century Harrison B. Prosper
 #------------------------------------------------------------------
-# load some modules into memory
+# load some Python modules into memory
 import os,sys          # Operating system, system modules
 from histutil import * # Load some utilities built on PyRoot
 from time import sleep # Well...kind of obvious, no?

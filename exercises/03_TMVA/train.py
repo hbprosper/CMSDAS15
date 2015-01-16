@@ -3,22 +3,21 @@
 # File: train.py
 # Description: example of classification with TMVA
 # Created: 01-June-2013 INFN SOS 2013, Vietri sul Mare, Italy, HBP
+#   adapted for CMSDAS 2015 Bari HBP
 #----------------------------------------------------------------------
 import os, sys, re
-from ROOT import *
 from math import *
 from string import *
 from time import sleep
 from array import array
 from histutil import *
+from ROOT import *
 #----------------------------------------------------------------------
-def getTree(filename):
+def getTree(filename, treename):
     hfile = TFile(filename)
     if not hfile.IsOpen():
         print "** can't open file %s" % filename
         sys.exit()
-        
-    treename = 'HZZ4LeptonsAnalysis'
     tree = hfile.Get(treename)
     if tree == None:
         print "** can't find tree %s" % treename
@@ -30,19 +29,22 @@ def main():
     print "\n", "="*80
     print "\tclassification with TMVA"
     print "="*80
-    
-    # get signal and background data
-    sigFile, sigTree = getTree("sig_gg-H-ZZ-2e2mu_8TeV_126GeV.root")
-    bkgFile, bkgTree = getTree("bkg_ZZ-2e2mu_8TeV.root")
 
-    # everything is done via a factory
-    outputFile = TFile("TMVAhiggszz.root", "RECREATE")
-    factory = TMVA.Factory("higgszz", outputFile,
+    treename    = "Analysis"    
+    # get signal and background data for training/testing
+    sigfilename = '../data/root/vbf13TeV.root'
+    bkgfilename = '../data/root/ggf13TeV.root'    
+    sigFile, sigTree = getTree(sigfilename, treename)
+    bkgFile, bkgTree = getTree(bkgfilename, treename)
+    
+    # everything is done via a TMVA factory
+    outputFile = TFile("TMVA_vbfggf.root", "recreate")
+    factory = TMVA.Factory("vbfggf", outputFile,
                            "!V:Transformations=I;N;D")
 
     # define input variables
-    factory.AddVariable("f_Z1mass", 'D')
-    factory.AddVariable("f_Z2mass", 'D')
+    factory.AddVariable("deltaetajj", 'D')
+    factory.AddVariable("massjj", 'D')
 
     # define from which trees data are to be taken
     factory.AddSignalTree(sigTree)
@@ -51,17 +53,15 @@ def main():
     # remove problematic events and specify how
     # many events are to be used
     # for training and testing
-    factory.PrepareTrainingAndTestTree(TCut("f_pt4l > 0 &&"\
-                                            " f_eta4l > -10"),
-                                       TCut("f_pt4l > 0 &&"\
-                                            " f_eta4l > -10"),
-                                       "nTrain_Signal=2500:"\
-                                       "nTest_Signal=2500:"\
-                                       "nTrain_Background=2500:"\
-                                       "nTest_Background=2500:"\
+    factory.PrepareTrainingAndTestTree(TCut("njets > 1"),
+                                       TCut("njets > 1"),
+                                       "nTrain_Signal=1000:"\
+                                       "nTest_Signal=2000:"\
+                                       "nTrain_Background=1000:"\
+                                       "nTest_Background=2000:"\
                                        "!V" )
 
-    # ok, almost done, define multivariate methods to be run
+    # define multivariate methods to be run
     factory.BookMethod( TMVA.Types.kMLP,
                         "MLP",
                         "!H:!V:"\

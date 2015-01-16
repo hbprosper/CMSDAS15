@@ -1,9 +1,17 @@
-Illustration of PyRoot
-----------------------
-Use RooFit to fit a compilation of Type Ia red shift, distance modulus data 
-(z, mu)
+Illustration of PyRoot and RooFit
+---------------------------------
 
-  python fitTypeIa.py
+Example 1:
+	Fitting an exponential to data
+
+	./fitExp.py 	       (or python fitExp.py)
+
+Example 2:
+
+	Fiting a Lambda-CDM model to a compilation of Type Ia red shift, 
+	distance modulus data (z, x+/-dx)
+
+	./fitTypeIa.py	 (or python fitTypeIa.py)
 
 
 	

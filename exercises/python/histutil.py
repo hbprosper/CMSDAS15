@@ -156,7 +156,7 @@ def setStyle():
 	CMSstyle.SetTitleColor(1, "XYZ")
 	CMSstyle.SetTitleFont(TEXTFONT, "XYZ")
 	CMSstyle.SetTitleSize(0.05, "XYZ")
-	CMSstyle.SetTitleXOffset(1.20)    #(1.25)
+	CMSstyle.SetTitleXOffset(1.25)    #(1.25)
 	CMSstyle.SetTitleYOffset(1.37)    #(1.60)
 					
 	# For the axis labels:

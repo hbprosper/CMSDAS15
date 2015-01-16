@@ -2,8 +2,8 @@ CMSDAS Bari INFN 2015 - Random Grid Search
 
 Description
 -----------
-Discriminate between pp -> H -> ZZ -> 4l and pp -> ZZ -> 4l
-events using box cuts.
+Discriminate between VBF and ggF production modes of pp -> H --> 4l events 
+using box cuts.
 
 To run:
 -------

@@ -21,7 +21,7 @@ double OFFSET=5*log10(2.99*pow(10.0, 5.0))+25;
 //-----------------------------------------------------------------------------
 
 // Lambda CDM model
-double lambdaModel(double a, double OM, double OL)
+double LCDMModel(double a, double OM, double OL)
 {
   // a^3 * [Omega_M/a^3 + (1-Omega_M-Omega_L)/a^2 + Omega_L]
   double y = OM + (1 - OM - OL)*a + OL*a*a*a;
@@ -39,7 +39,7 @@ double phantomModel(double a, double OM, double OL)
 
 
 // pick model
-double (*model)(double, double, double) = lambdaModel;
+double (*model)(double, double, double) = LCDMModel;
 
 // compute distance modulus
 double distanceModulus(double z, double OM, double OL, double H)
@@ -72,5 +72,4 @@ double distanceModulus(double z, double OM, double OL, double H)
   double y = 5*log10((1+z)*F/H) + OFFSET;
   return y;
 }
-
 

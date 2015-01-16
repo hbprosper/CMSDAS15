@@ -1,97 +1,85 @@
 #!/usr/bin/env python
 # -----------------------------------------------------------------------------
 #  File:        train.py
-#  Description: Run Random Grid Search to find cuts that best separate H->ZZ-4l
-#               signal from ZZ background using box cuts
-# -----------------------------------------------------------------------------
-#  Created:     02-Jun-2013 Harrison B. Prosper
+#  Description: Random Grid Search to find cuts that best separate the VBF
+#               ggF Higgs boson production modes
+#  Created:     10-Jan-2015 Harrison B. Prosper
 # -----------------------------------------------------------------------------
 import os, sys, re
 from string import *
 from ROOT import *
 # -----------------------------------------------------------------------------
 def error(message):
-	print "** %s" % message
-	exit(0)
-# -----------------------------------------------------------------------------
-
-# -------------------------------------------
-def efflimits(x):
-	x1 = sum(x)/len(x)
-	x2 = sum(map(lambda z: z*z, x))/len(x)
-	x2 = sqrt(x2-x1*x1)
-	xmax = x1 + x2
-	k = int(xmax/0.05)
-	xmax = k*0.05
-	return (0.0, xmax)
-# -----------------------------------------------------------------------------
+    print "** %s" % message
+    exit(0)
+def nameonly(s):
+    import posixpath
+    return posixpath.splitext(posixpath.split(s)[1])[0]    
 # -----------------------------------------------------------------------------
 def main():
-	print "="*80
-	print "\t\t=== Random Grid Search ==="
-	print "="*80
-	
-	# ---------------------------------------------------------------------
-	#  Load RGS class
-	# ---------------------------------------------------------------------
-	gROOT.ProcessLine(".L RGS.cc+")
+    print "="*80
+    print "\t\t=== Random Grid Search ==="
+    print "="*80
 
-	# ---------------------------------------------------------------------
-	#  Create RGS object
-	# 
-	#  Need:
-	#   A file of cut-points - usually a signal file, which ideally is
-	#   not the same as the signal file on which the RGS algorithm is run.
-	# ---------------------------------------------------------------------
+    # ---------------------------------------------------------------------
+    #  Load RGS class and that we have all that we need
+    # ---------------------------------------------------------------------
+    gROOT.ProcessLine(".L RGS.cc+")
 
-	# Check that all files are present
-	varFile = "rgs.vars"
-	if not os.path.exists(varFile):
-		error("unable to open variables file %s" % varFile)
-		
-	sigFile = "../data/root/sig_HZZ4l_8TeV.root"
-	if not os.path.exists(sigFile):
-		error("unable to open signal file %s" % sigFile)
+    varfilename = "rgs.vars"
+    if not os.path.exists(varfilename):
+        error("unable to open variables file %s" % varfilename)
 
-	bkgFile = "../data/root/bkg_ZZ4l_8TeV.root"
-	if not os.path.exists(bkgFile):
-		error("unable to open background file %s" % bkgFile)
+    sigfilename = "../data/root/vbf13TeV_train.root"
+    if not os.path.exists(sigfilename):
+        error("unable to open signal file %s" % sigfilename)
 
-	treeName = "Analysis"
-	# ---------------------------------------------------------------------
-	
-	print "\t==> create RGS object"
-	cutsFile = sigFile
-	start = 0    
-	maxcuts = 5000 #  maximum number of cut-points to consider
+    bkgfilename = "../data/root/ggf13TeV_train.root"
+    if not os.path.exists(bkgfilename):
+        error("unable to open background file %s" % bkgfilename)
 
-	rgs = RGS(cutsFile, start, maxcuts, treeName)
-	
-	# ---------------------------------------------------------------------
-	#  Add signal and background data to RGS object
-	#  Weight each event using the value in the field "f_weight", if it exists.
-	#  NB: We asssume all files are of the same format
-	# ---------------------------------------------------------------------
-	numrows = 0 #  Load all the data from the files
-	
-	print "\t==> load background data"
-	rgs.add(bkgFile, start, numrows, "f_weight")
-	print
-	
-	print "\t==> load signal data"
-	rgs.add(sigFile, start, numrows, "f_weight")
-	print
-	
-	#  Run algorithm
-	rgs.run(varFile)
+    treename   = "Analysis"    
+    weightname = "weight"
 
-	#  Save results to a root file
-	rfile = rgs.save("rgs.root")
+    # ---------------------------------------------------------------------
+    #  Create RGS object
+    #  Need:
+    #   A file of cut-points - usually a signal file, which ideally is
+    #   not the same as the signal file on which the RGS algorithm is run.
+    # ---------------------------------------------------------------------
+    print "==> create RGS object"
+    cutfilename = sigfilename
+    start   = 0    
+    maxcuts = 5000 #  maximum number of cut-points to consider
+
+    rgs = RGS(cutfilename, start, maxcuts, treename)
+
+    # ---------------------------------------------------------------------
+    #  Add signal and background data to RGS object
+    #  Weight each event using the value in the field weightname, if it
+    #  exists.
+    #  NB: We asssume all files are of the same format
+    # ---------------------------------------------------------------------
+    numrows = 0 #  Load all the data from the files
+
+    print "==> load background data"
+    rgs.add(bkgfilename, start, numrows, weightname)
+    print
+
+    print "==> load signal data"
+    rgs.add(sigfilename, start, numrows, weightname)
+    print
+    # ---------------------------------------------------------------------	
+    #  Run RGS and write out results
+    # ---------------------------------------------------------------------	    
+    rgs.run(varfilename)
+    rgsfilename = "%s.root" % nameonly(varfilename)
+    rfile = rgs.save(rgsfilename)
 # -----------------------------------------------------------------------------
 try:
-	main()
+    main()
 except KeyboardInterrupt:
-	print "\tciao!\n"
-	
+    print "\tciao!\n"
+
 
 

@@ -1,22 +1,20 @@
-INFN SOS 2013 - Example - Neural Network and Boosted Decision Tree
+CMSDAS Bari INFN 2015 - Neural Network and Boosted Decision Tree
 
 Description
 -----------
-Discriminate between pp -> H -> ZZ -> 4l and pp -> ZZ -> 4l
-
-Setup
--------
-First set up a link to the ntuples
-
-      ln -s ../ntuples/*.root .
+Discriminate between VBF and ggF production modes of pp -> H -> 4l events
 
 To run:
 -------
      python train.py
 
-output:
-	rgs.root
+output in directory
+     weights
 
 To plot:
 --------
+     root -l runTMVAGui.C
+
+or
+
      python plot.py

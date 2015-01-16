@@ -97,33 +97,11 @@ namespace {
 
     kdeptr->setbandwidth(bandwidth);
     kdeptr->normalize();
-
-//     double lprior = kdeptr->logprior();
-
-//     // Check for crazy value!
-//     if ( lprior != lprior )
-//       { 
-//         cout << "*** ERROR fcn: lprior = " << lprior << endl;
-//         exit(0);
-//       }
-
-//     double llike  = kdeptr->loglikelihood();
-
-//     // Check for crazy value!
-//     if ( llike != llike )
-//       { 
-//         cout << "*** ERROR fcn: llike = " << llike << endl;
-//         exit(0);
-//       }
-
-//     double lpost = llike + lprior;
-//     fval = -lpost;
-
     fval = kdeptr->chisq();
 
-    double z=0;
-    for(int i=0; i < npar; i++) z *= xval[i];
-    if ( z > 0 ) fval += 1.0/(kdeptr->lambda() + pow(abs(z), 1.0/npar));
+    //double z=0;
+    //for(int i=0; i < npar; i++) z *= xval[i];
+    //if ( z > 0 ) fval += 1.0/(kdeptr->lambda() + pow(abs(z), 1.0/npar));
     
     // Check for crazy value!
     if ( fval != fval )
@@ -391,6 +369,8 @@ KDE::chisq()
 {
   int ND = 0;
   double chi2 = 0;
+  double penalty = 0;
+  double fp = 0;
   for(int i=0; i < _D; i++)
     {
       int nbins    = _hw[i].GetNbinsX(); 
@@ -407,19 +387,21 @@ KDE::chisq()
               double x = xmin + (bin-0.5)*width;
               double f = norm * (*this)(x, name);
               double z = (f - d);
-              if ( d > 0 )
+              if ( d > 5 )
                 {
                   ND++;
                   chi2 += z*z / d;
+		  if ( i > 0 )
+		    {
+		      double df = f - fp;
+		      penalty += df*df/d;
+		    }
+		  fp = f;
                 }
             }
         }
     }
-  ND -= _D;
-  if ( ND > 0 ) 
-    return chi2/ND;
-  else
-    return 0;
+  return chi2 + penalty/4;
 }
 
 int
@@ -438,7 +420,7 @@ KDE::optimize(double scale, int maxiter)
     }
   cout << endl;
 
-  // Make these are initialized
+  // Make sure these are initialized
 
   NCALL = 0;
   kdeptr = this;

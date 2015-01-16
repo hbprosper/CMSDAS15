@@ -21,7 +21,7 @@ import os, sys
 from getopt import getopt, GetoptError
 from string import atof, atoi, replace, lower,\
 	 upper, joinfields, split, strip, find
-from time import sleep, ctime
+from time import sleep, ctime, time
 #------------------------------------------------------------------------------
 # Constants
 #------------------------------------------------------------------------------

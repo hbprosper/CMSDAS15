@@ -213,7 +213,7 @@ def main():
 	names['varlist'] = varlist
 	names['datafile'] = trainfile
 	names['time'] = ctime(time())
-	names['count']= count+1
+	names['count']= ndata+1
 	names['I'] = nvar
 	names['H'] = hidden
 	names['iter'] = iterations

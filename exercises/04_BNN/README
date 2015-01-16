@@ -1,0 +1,30 @@
+CMSDAS Bari INFN 2015 - Bayesian Neural Network
+
+Description
+-----------
+Discriminate between VBF and ggF production modes of pp -> H -> 4l events 
+
+To run:
+-------
+     python train.py
+
+Periodically check progression of training using
+
+     net-display -h vbfggf.bin
+
+To create a self-contained C++ function that encapsulates the BNN do
+
+     netwrite -n 100 vbfggf
+
+output:
+
+     vbfggf.cpp
+
+To plot:
+--------
+     python plot.py
+
+output:
+     fig_bnn.png
+     fig_bnn.pdf
+
