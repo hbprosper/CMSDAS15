@@ -38,7 +38,7 @@ def main():
     bkgFile, bkgTree = getTree(bkgfilename, treename)
     
     # everything is done via a TMVA factory
-    outputFile = TFile("TMVA_vbfggf.root", "recreate")
+    outputFile = TFile("TMVA.root", "recreate")
     factory = TMVA.Factory("vbfggf", outputFile,
                            "!V:Transformations=I;N;D")
 
