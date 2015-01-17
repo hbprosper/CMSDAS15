@@ -1115,7 +1115,9 @@ class BDT:
         if not path.exists(filename):
             print '** BDT ** error ** cannot open file %s' % filename
             exit()
-            
+
+        self.normweights = True
+        
         record = open(filename).read()
         gettree = re.compile('^  [/][/] itree[^)]+[)];[^;]+;', re.M)
         recs = gettree.findall(record)
@@ -1125,8 +1127,12 @@ class BDT:
         for index, record in enumerate(recs):
             record = replace(record, 'NN(', 'Node(')
             record = replace(record,'  //','#')
-            record = replace(record,'  fBoostWeights.push_back','self.weights.append')
-            record = replace(record,'  fForest.push_back','self.forest.append')
+            record = replace(record,
+                             '  fBoostWeights.push_back',
+                             'self.weights.append')
+            record = replace(record,
+                             '  fForest.push_back',
+                             'self.forest.append')
             record = replace(record,';','')
             exec(record)
             if index % 100 == 0:
@@ -1135,17 +1141,16 @@ class BDT:
     def __del__(self):
         pass
 
-    def __call__(self, inputValues, numTrees=-1):
-
+    def __call__(self, inputValues, firstTree=0, lastTree=-1):
         totalTrees = len(self.forest)
-        if numTrees > 0:
-            ntrees = min(numTrees, totalTrees)
-        else:
-            ntrees = totalTrees
 
+        if firstTree < 0: firstTree = 0
+        if lastTree  < 0: lastTree  = totalTrees-1
+        if firstTree > lastTree: firstTree = lastTree
+            
         value = 0.0
         norm  = 0.0
-        for itree in xrange(ntrees):
+        for itree in xrange(firstTree, lastTree+1):
             current = self.forest[itree]
             while current.getNodeType() == 0:
                 if current.goesRight(inputValues):
@@ -1154,13 +1159,18 @@ class BDT:
                     current = current.getLeft()
             value += self.weights[itree] * current.getNodeType()
             norm  += self.weights[itree]
-        value /= norm
+
+        if self.normweights:
+            value /= norm
+        else:
+            value = 1.0/exp(1 + exp(-2*value))
         return value
 
     def printTree(self, itree, varnames, depth=0, which=0, node=None):
         if which == 0:
             node = self.forest[itree]
-            print "tree number %d\tweight = %10.3e" % (itree, self.weights[itree])
+            print "tree number %d\tweight = %10.3e" % (itree,
+                                                       self.weights[itree])
             
         if node == 0: return
         if node == None: return
@@ -1184,7 +1194,13 @@ class BDT:
             return self.weights[itree]
         else:
             return -1
+
+    def normWeights(self, norm=True):
+        self.normweights = norm
         
+    def sumWeight(self):
+        return sum(self.weights)
+    
     def plot(self, itree, hname, xtitle, ytitle,
              xmin, xmax, ymin, ymax, useValue=False,
              node=None):
@@ -1215,15 +1231,11 @@ class BDT:
         if self.binNumber > 20:
             print "*** lost in trees ***"
             sys.exit(0)
-            
-        ## print "%d%10.2f%10.2f%10.2f%10.2f selector: %d" % (self.binNumber,
-        ##                                                    xmin, ymin, xmax, ymax,
-        ##                                                    node.selector)      
 
         if useValue:
             weight = node.nodeType        
         else:
-            weight =-self.binNumber
+            weight = self.binNumber
             
         self.hplot.AddBin(xmin, ymin, xmax, ymax)            
         self.hplot.SetBinContent(self.binNumber, weight)
@@ -1236,19 +1248,27 @@ class BDT:
             # left
             xmax1= xmax
             xmax = value
-            self.plot(itree, hname, xtitle, ytitle, xmin, xmax, ymin, ymax, useValue, node.left)
+            self.plot(itree, hname,
+                      xtitle, ytitle, xmin, xmax, ymin, ymax,
+                      useValue, node.left)
             # right
             xmax = xmax1
             xmin = value
-            self.plot(itree, hname, xtitle, ytitle, xmin, xmax, ymin, ymax, useValue, node.right)
+            self.plot(itree, hname,
+                      xtitle, ytitle, xmin, xmax, ymin, ymax,
+                      useValue, node.right)
         else:
             # left
             ymax1 = ymax
             ymax = value
-            self.plot(itree, hname, xtitle, ytitle, xmin, xmax, ymin, ymax, useValue, node.left)
+            self.plot(itree, hname,
+                      xtitle, ytitle, xmin, xmax, ymin, ymax,
+                      useValue, node.left)
             # right
             ymax = ymax1
             ymin = value
-            self.plot(itree, hname, xtitle, ytitle, xmin, xmax, ymin, ymax, useValue, node.right)
+            self.plot(itree, hname,
+                      xtitle, ytitle, xmin, xmax, ymin, ymax,
+                      useValue, node.right)
         return self.hplot
 

@@ -45,11 +45,11 @@ def main():
     # set up a standard graphics style	
     setStyle()
 
-    xbins = 40
+    xbins = 10
     xmin  =  0.0
     xmax  =  8.0
 
-    ybins = 40
+    ybins = 10
     ymin  =  0.0
     ymax  =2000.0
 
@@ -64,7 +64,7 @@ def main():
 
     # pick discriminant
 
-    which = 'MLP'
+    which = 'BDT'
 
     # ---------------------------------------------------------
     # make 2-D surface plot
@@ -116,9 +116,9 @@ def main():
     # --- p(S|x) = p(x|S) / [p(x|S) + p(x|B)]
 
     hD = hsig.Clone('hD')
-    hSum = hsig.Clone('hSum')
-    hSum.Add(hbkg)
-    hD.Divide(hSum)
+    hsum = hsig.Clone('hSum')
+    hsum.Add(hbkg)
+    hD.Divide(hsum)
     hD.SetMinimum(0)
     hD.SetMaximum(1)
 
@@ -172,13 +172,12 @@ def main():
     s4.write('D(%s, %s) (%s)' % (varx, vary, which))
     c.Update()
 
-    c.SaveAs(".png")
     c.SaveAs(".pdf")
-
+    c.SaveAs(".png")
     # ---------------------------------------------------------
     # plot distributions of D
     # ---------------------------------------------------------
-    c1  = TCanvas("fig_zbfggf_D_%s" % which, "",
+    c1  = TCanvas("fig_vbfggf_D_%s" % which, "",
                   510, 310, 500, 500)
 
     xm = 0
