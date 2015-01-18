@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -----------------------------------------------------------------------------
 #  File:        train.py
-#  Description: Random Grid Search to find cuts that best separate the VBF
-#               ggF Higgs boson production modes
+#  Description: Random Grid Search to find cuts that best separates T2tt
+#               from TTJets using ladder cuts
 #  Created:     10-Jan-2015 Harrison B. Prosper
 # -----------------------------------------------------------------------------
 import os, sys, re
@@ -24,18 +24,17 @@ def main():
     # ---------------------------------------------------------------------
     #  Load RGS class and that we have all that we need
     # ---------------------------------------------------------------------
-    gSystem.AddLinkedLibs("-L$ROOTSYS/lib -lTreePlayer")
-    gROOT.ProcessLine(".L RGS.cc+")
+    gSystem.Load("RGS_cc.so")
 
     varfilename = "rgs.vars"
     if not os.path.exists(varfilename):
         error("unable to open variables file %s" % varfilename)
 
-    sigfilename = "../data/root/vbf13TeV_train.root"
+    sigfilename = "../data/root/T2tt_mStop_850_mLSP_100.root"
     if not os.path.exists(sigfilename):
         error("unable to open signal file %s" % sigfilename)
 
-    bkgfilename = "../data/root/ggf13TeV_train.root"
+    bkgfilename = "../data/root/TTJets.root"
     if not os.path.exists(bkgfilename):
         error("unable to open background file %s" % bkgfilename)
 
@@ -46,15 +45,12 @@ def main():
     #   not the same as the signal file on which the RGS algorithm is run.
     # ---------------------------------------------------------------------
     print "==> create RGS object"
+    cutfilename = sigfilename
+    start   = 0    
+    maxcuts = 2000 #  maximum number of cut-points to consider
+    treename= "Analysis"
     
-    cutfilename= sigfilename
-    start      = 0           # start row (after event selection)
-    maxcuts    = 1000        # maximum number of cut-points to consider
-    treename   = "Analysis"  # name of Root tree 
-    weightname = "weight"    # name of event weight variable
-    
-    rgs = RGS(cutfilename, start, maxcuts,
-              treename, weightname)
+    rgs = RGS(cutfilename, start, maxcuts, treename)
 
     # ---------------------------------------------------------------------
     #  Add signal and background data to RGS object
@@ -62,8 +58,7 @@ def main():
     #  exists.
     #  NB: We asssume all files are of the same format
     # ---------------------------------------------------------------------
-    start    = 0 #  start row
-    numrows  = 0 #  scan all the data from the files
+    numrows = 0 #  Load all the data from the files
 
     print "==> load background data"
     rgs.add(bkgfilename, start, numrows)

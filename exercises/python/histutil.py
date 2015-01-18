@@ -620,7 +620,7 @@ def mkgraphErrors(x, y, ex, ey, xtitle, ytitle, xmin, xmax, **args):
 	if ymin != None and ymax != None:
 		g.GetHistogram().SetAxisRange(ymin, ymax, "Y")
 	g.GetHistogram().SetNdivisions(ndivy, "Y")
-	return g
+	return g 
 #------------------------------------------------------------------------------
 def mkcdf(hist, minbin=1):
 	c = [0.0]*(hist.GetNbinsX()-minbin+2)
@@ -1200,22 +1200,36 @@ class BDT:
         
     def sumWeight(self):
         return sum(self.weights)
+
+    def lines(self):
+        g = []
+        x = array('d'); x.append(0); x.append(0)
+        y = array('d'); y.append(0); y.append(0)
+        self.linseg.sort()
+        lastline = self.linseg[0]
+        for line in self.linseg[1:]:
+            if line == lastline: continue
+            x[0], y[0], x[1], y[1] = line
+            g.append(TGraph(2, x, y))
+            lastline = line
+        return g
     
     def plot(self, itree, hname, xtitle, ytitle,
-             xmin, xmax, ymin, ymax, useValue=False,
+             xmin, xmax, ymin, ymax, 
              node=None):
         
         if node == None:
-            hname = "%s%5.5d" % (hname, itree)
             self.hplot = TH2Poly(hname, "", xmin, xmax, ymin, ymax)
             self.hplot.GetXaxis().SetTitle(xtitle)
             self.hplot.GetYaxis().SetTitle(ytitle)
             self.hplot.GetYaxis().SetTitleOffset(1.6)
             self.hplot.SetNdivisions(505, "X")
             self.hplot.SetNdivisions(505, "Y")
+            self.hplot.SetMinimum(0)
             self.binNumber = 0
+            self.linseg = []
             node = self.forest[itree]
-
+            
         if node == None:
             print "*** node is None - shouldn't happen ***"
             sys.exit(0)
@@ -1228,18 +1242,25 @@ class BDT:
             return self.hplot
  
         self.binNumber += 1
-        if self.binNumber > 20:
+        
+        if self.binNumber > 200:
             print "*** lost in trees ***"
             sys.exit(0)
 
-        if useValue:
-            weight = node.nodeType        
-        else:
-            weight = self.binNumber
+        weight = node.nodeType + 5
             
         self.hplot.AddBin(xmin, ymin, xmax, ymax)            
         self.hplot.SetBinContent(self.binNumber, weight)
+        
+        self.linseg.append( (xmin, ymin, xmin, ymax) )
+        self.linseg.append( (xmin, ymax, xmax, ymax) )
+        self.linseg.append( (xmax, ymax, xmax, ymin) )
+        self.linseg.append( (xmax, ymin, xmin, ymin) )
 
+        ## print "==> bin number: %d" % self.binNumber
+        ## for line in self.linseg[-4:]:
+        ##     print "\t", line
+            
         if node.selector < 0:
             return self.hplot
         
@@ -1250,25 +1271,25 @@ class BDT:
             xmax = value
             self.plot(itree, hname,
                       xtitle, ytitle, xmin, xmax, ymin, ymax,
-                      useValue, node.left)
+                      node.left)
             # right
             xmax = xmax1
             xmin = value
             self.plot(itree, hname,
                       xtitle, ytitle, xmin, xmax, ymin, ymax,
-                      useValue, node.right)
+                      node.right)
         else:
             # left
             ymax1 = ymax
             ymax = value
             self.plot(itree, hname,
                       xtitle, ytitle, xmin, xmax, ymin, ymax,
-                      useValue, node.left)
+                      node.left)
             # right
             ymax = ymax1
             ymin = value
             self.plot(itree, hname,
                       xtitle, ytitle, xmin, xmax, ymin, ymax,
-                      useValue, node.right)
+                      node.right)
         return self.hplot
 

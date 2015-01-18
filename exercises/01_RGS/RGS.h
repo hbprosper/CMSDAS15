@@ -4,6 +4,7 @@
 // File:    RGS.h
 // Purpose: Declaration of RGS classes
 // Created: 18-Aug-2000 Harrison B. Prosper, Chandigarh, India
+// Updated  18-Jan-2015 HBP - add selection argument - Bari, Italy
 //$Revision: 1.4 $
 //////////////////////////////////////////////////////////////////////////////
 #ifdef __WITH_CINT__
@@ -47,7 +48,8 @@ bool slurpTable(std::string filename,
 		int start=0,
 		int count=0,
 		bool extend=false,
-		std::string treename="");
+		std::string treename="",
+		std::string selection="");
 
 std::string rgsversion();
 ///
@@ -58,10 +60,16 @@ public:
   RGS();
 
   ///
-  RGS(std::string cutdatafilename, int start=0, int numrows=0, std::string treename="");
+  RGS(std::string cutdatafilename, int start=0, int numrows=0, 
+      std::string treename="",
+      std::string weightname="",
+      std::string selection="");
 
   ///
-  RGS(std::vector<std::string>& cutdatafilename, int start=0, int numrows=0, std::string treename="");
+  RGS(std::vector<std::string>& cutdatafilename, int start=0, int numrows=0,
+      std::string treename="",
+      std::string weightname="",
+      std::string selection="");
 
   virtual ~RGS();
 
@@ -71,14 +79,12 @@ public:
   /// Add a data file.
   void  add(std::string datafilename,
             int start=0, 
-            int numrows=0,       // Read all rows  
-            std::string weightname="weight");
+            int numrows=0);     // Read all rows  
   
   /// Add one or more data files.
   void  add(std::vector<std::string>& datafilename,
             int start=0, 
-            int numrows=0,
-            std::string weightname="weight");
+            int numrows=0);
 
   /// Run the RGS algorithm for specified cut variables and cut directions.
   void  run(vstring&  cutvar,  // Variables defining cuts 
@@ -135,10 +141,14 @@ private:
   TFile*      _file;
   TTree*      _tree;
   std::string _treename;
+  std::string _weightname;
+  std::string _selection;
 
   std::vector<std::vector<int> > _cutpointindex;
 
-  void _init(vstring& filename, int start=0, int numrows=0, std::string treename="");
+  void _init(vstring& filename, int start=0, int numrows=0, 
+	     std::string treename="",
+	     std::string selection="");
   bool _boxcut(float x, int cutpoint, int jcut);
   bool _laddercut(vdouble& datarow, int cutpoint, int& cut);
 

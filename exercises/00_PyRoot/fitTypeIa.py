@@ -4,10 +4,10 @@
 # Created sometime in the 21st century Harrison B. Prosper
 #------------------------------------------------------------------
 # load some Python modules into memory
-import os,sys          # Operating system, system modules
-from histutil import * # Load some utilities built on PyRoot
-from time import sleep # Well...kind of obvious, no?
-from ROOT import *     # Load PyRoot
+import os,sys          # operating system, system modules
+from histutil import * # load some utilities built on PyRoot
+from time import sleep # well...kind of obvious, no?
+from ROOT import *     # load all of PyROOT
 #------------------------------------------------------------------
 # procedure to make nice plots
 def makePlots(data, OM, OL, H, zmin, zmax, mumin, mumax):

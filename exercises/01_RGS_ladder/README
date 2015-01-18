@@ -1,0 +1,20 @@
+CMSDAS Bari INFN 2015 - Random Grid Search
+
+Description
+-----------
+Discriminate between T2tt and TTJets using ladder cuts.
+
+To run:
+-------
+     python train.py
+
+output:
+	rgs.root
+
+To plot:
+--------
+     python plot.py
+
+output:
+     fig_rgs.png
+     fig_rgs.pdf

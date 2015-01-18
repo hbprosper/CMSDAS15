@@ -3,6 +3,7 @@
 # File: plotTrees.py
 # Description: example of classification with TMVA
 # Created: 31-May-2013 INFN SOS 2013, Salerno, Italy, HBP
+#  adapt to CMSDAS 2015, Bari, Italy
 #------------------------------------------------------------------------------
 import os, sys
 from math import *
@@ -24,10 +25,10 @@ def main():
     setStyle()
     
     pixels = 200
-    xmin = 0.0
-    ymin = 0.0
-    xmax = 8.0
-    ymax =2000.0
+    xmin   = 0.0
+    ymin   = 0.0
+    xmax   = 8.0
+    ymax   = 2000.0
 
     # draw individual trees
     nx = 4
@@ -35,20 +36,30 @@ def main():
     nn = nx*ny
     c = TCanvas('fig_%dtrees' % nn, 'trees', 10, 10, nx*pixels, ny*pixels)
     c.Divide(nx, ny)
-    h = []
+    hist = []
+    line = []
     for ii in xrange(nx*ny):
-        h.append(bdt.plot(ii, 'htree',
-                          '#Delta#eta_{jj}',
-                          'm_{jj} (GeV)', xmin, xmax, ymin, ymax))
+        print
+        h = bdt.plot(ii, 'h%2.2d' % ii,
+                     '#Delta#eta_{jj}',
+                     'm_{jj} (GeV)',
+                     xmin, xmax, ymin, ymax)
+        graphs = bdt.lines()
+        
+        hist.append( h )
+        line.append( graphs )
+        
         c.cd(ii+1)
-        h[-1].Draw('col')
+        h.Draw('col')
+        for g in line[-1]:
+            g.Draw('l same')
         c.Update()
+
     c.SaveAs(".pdf")
     c.SaveAs(".png")
-    sleep(5)
-
+    
     # draw 2D plot with increasing numbers of trees
-    c1 = TCanvas('fig_forest', 'trees', 10, 10, 600, 600)
+    c1 = TCanvas('fig_forest', 'trees', 820, 10, 600, 600)
     c1.Divide(2,2)
     nx = 50
     ny = 50
@@ -71,14 +82,14 @@ def main():
                 y = ymin + iy * ystep
                 vtuple = (x, y)
                 z = bdt(vtuple, firstTree, lastTree)
-                hh[-1].Fill(x, y, z)
+                hh[-1].SetBinContent(ix+1, iy+1, z);
         c1.cd(ii+1)
         hh[-1].Draw('col')
         addTitle('%5d trees' % ntrees[ii], 0.06)
         c1.Update()
     c1.SaveAs(".pdf")
     c1.SaveAs('.png')
-    sleep(10)
+    sleep(5)
     
     ## os.system('rm -rf fig_manytrees.gif')
     ## c1 = TCanvas('fig_manytrees', 'many trees', 610, 310, 2*pixels, 2*pixels)
