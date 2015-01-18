@@ -33,7 +33,7 @@ string rgsversion()
   return string("RGS - v2.1");
 }
 
-static int DEBUG = getenv("DBRGS") > 0 ? atoi(getenv("DBRGS")) : 0;
+static int DEBUG = getenv("DBRGS") > (char*)0 ? atoi(getenv("DBRGS")) : 0;
 
 void error(string message)
 {
