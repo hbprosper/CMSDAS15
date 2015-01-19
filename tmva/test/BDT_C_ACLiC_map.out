@@ -1,0 +1,4 @@
+ libCore.so libRIO.so libThread.so libMathCore.so libHist.so libMatrix.so libMathCore.so libGpad.so libGraf.so libHist.so libMathCore.so libGraf.so libHist.so libMatrix.so libMathCore.so libRIO.so libGui.so libGpad.so libGraf.so libRIO.so libMathCore.so libTMVA.so libRIO.so libHist.so libMatrix.so libTree.so libGraf.so libGpad.so libTreePlayer.so libMLP.so libMinuit.so libMathCore.so libXMLIO.so libTree.so libNet.so libRIO.so libThread.so libXMLIO.so libRIO.so libTreePlayer.so libTree.so libGraf3d.so libGraf.so libHist.so libGpad.so libRIO.so libMathCore.so libNet.so libRIO.so libMathCore.so
+# Now the list of classes
+PlotType
+StatDialogBDT
