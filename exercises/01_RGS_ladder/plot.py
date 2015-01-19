@@ -11,23 +11,12 @@ from string import *
 from histutil import *
 from time import sleep
 from array import array
+from solution import LadderPlot
 from ROOT import *
 # ---------------------------------------------------------------------
 def error(message):
     print "** %s" % message
     exit(0)
-
-def cutPlot(cutpoint, xmin, xmax, ymin, ymax, color=kBlack):
-    x = array('d')
-    y = array('d')
-    yy, xx = cutpoint
-    y.append(ymax); x.append(xx)
-    y.append(yy);   x.append(xx)
-    y.append(yy);   x.append(xmax)
-    poly = TPolyLine(len(x), x, y)
-    poly.SetLineWidth(2)
-    poly.SetLineColor(color)
-    return poly
 # ---------------------------------------------------------------------
 def main():
     print "="*80
@@ -97,90 +86,64 @@ def main():
     ntuple = Ntuple('rgs.root', 'RGS')
     print "number of cut-points: ", ntuple.size()
     
-    bmax = 1.00
+    bmax = 0.30
     smax = 1.00
     color= kBlue+1
     hist = mkhist2("hrgs",
                    "#epsilon_{t#bar{t}}",
                    "#epsilon_{T2tt}",
-                   xbins, 0, bmax,
-                   ybins, 0, smax,
+                   xbins, 0.0, 0.30,
+                   ybins, 0.5, 1.00,
                    color=color)
     hist.SetMinimum(0)
     
-    print "\n\t=== filling RGS histogram..."	
+    print "\n\t=== best ladder cut"	
     maxZ =-1
-    Z =-1
-    R2 = None
-    MR = None
-    cuts = []
+    Z  =-1
+    # a creator of a ladder cut plot
+    ladderPlot = LadderPlot(xmin, xmax, ymin, ymax)
+
     for row, cut in enumerate(ntuple):
         eb = cut.fraction0   #  background efficiency
         es = cut.fraction1   #  signal efficiency
+        hist.Fill(eb, es)
+
+        # compute measure of significance
+        # Z  = sign(LR) * sqrt(2*|LR|)
+        # where LR = log(Poisson(s+b|s+b)/Poisson(s+b|b))
+        #
         b  = cut.count0      #  background
         s  = cut.count1      #  signal
-
         if b > 5:
-            Z = s / sqrt(b)
+            Z = 2*(s - (s+b)*log((s+b)/b))
+            if Z > 0:
+                Z = sqrt(Z)
+            else:
+                Z =-sqrt(-Z)
         else:
             Z = 0.0
 
-        # find outer boundary of cut points
+        # add ladder cut to ladder plot
         R2 = cut.R2
         MR = cut.MR
-        
-        allcutpoints = [None]*len(R2)
-        for ii in xrange(len(R2)):
-            allcutpoints[ii] = (R2[ii], MR[ii])
-        allcutpoints.sort()
-        
-        cutpoint = [allcutpoints[0]]
-        for ii in xrange(1, len(allcutpoints)):
-            y0, x0 = cutpoint[-1]
-            y1, x1 = allcutpoints[ii]
-            if x1 < x0:
-                cutpoint.append(allcutpoints[ii])
-        cuts.append((Z, cutpoint, allcutpoints, eb, es, b, s))
-        hist.Fill(eb, es)
-
-    # now plot by cuts
-    cuts.sort()
-    cuts.reverse()
-
-    cutplot = []
-    for ii in range(1):
-        Z, cutpoints, allcutpoints, eb, es, b, s = cuts[ii]
-
-        # plot all cut-points for best cuts
-        for cutpoint in allcutpoints:
-            r2, mr = cutpoint
-            cutplot.append(cutPlot(cutpoint,
-                                   xmin, xmax, ymin, ymax,
-                                   kRed))
-            cutplot[-1].Draw('l same')
-
-        # plot outer boundary of cut-points for best cuts
-        for cutpoint in cutpoints:
-            r2, mr = cutpoint
-            print "\tR2 > %10.3f && MR > %10.1f" % (r2, mr)
-            cutplot.append(cutPlot(cutpoint,
-                                   xmin, xmax, ymin, ymax,
-                                   kBlack))
-            cutplot[-1].Draw('l same')
-         
+        ladderPlot.add(Z, R2, MR)
+    
+    cmass.cd()
+    ladderPlot.draw()
+    cmass.Update()
     cmass.SaveAs('.png')
     cmass.SaveAs('.pdf')
-    
+
     # -------------------------------------------------------------
-    # make final plot
+    # roc plot
     # -------------------------------------------------------------
-    print "\n\t=== plotting RGS histogram..."	
+    print "\n\t=== ROC plot"	
     crgs = TCanvas("fig_rgs", "RGS", 516, 10, 500, 500)
     crgs.cd()
     hist.Draw()
     crgs.Update()
     crgs.SaveAs(".png")
-    crgs.SaveAs(".pdf")
+    crgs.SaveAs(".pdf")    
     sleep(10)
 # ---------------------------------------------------------------------
 main()

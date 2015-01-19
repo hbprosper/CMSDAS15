@@ -24,15 +24,15 @@ def main():
 
     setStyle()
     
-    pixels = 200
     xmin   = 0.0
     ymin   = 0.0
     xmax   = 8.0
     ymax   = 2000.0
 
     # draw individual trees
-    nx = 4
-    ny = 4
+    pixels = 150
+    nx = 5
+    ny = 5
     nn = nx*ny
     c = TCanvas('fig_%dtrees' % nn, 'trees', 10, 10, nx*pixels, ny*pixels)
     c.Divide(nx, ny)

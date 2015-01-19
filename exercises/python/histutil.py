@@ -1247,7 +1247,7 @@ class BDT:
             print "*** lost in trees ***"
             sys.exit(0)
 
-        weight = node.nodeType + 5
+        weight =-node.nodeType + 5
             
         self.hplot.AddBin(xmin, ymin, xmax, ymax)            
         self.hplot.SetBinContent(self.binNumber, weight)
