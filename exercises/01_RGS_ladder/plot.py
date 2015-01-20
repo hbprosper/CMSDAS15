@@ -35,7 +35,9 @@ def main():
     ymax  = 1.0    
 
     cmass = TCanvas("fig_T2tt_TTJets", "",
-                    10, 10, 500, 500)    
+                    10, 10, 700, 350)    
+    # divide canvas canvas along x-axis
+    cmass.Divide(2,1)
     
     # -- background
 
@@ -51,7 +53,7 @@ def main():
     for ii, event in enumerate(bntuple):
         hb.Fill(event.MR, event.R2)
         if ii % 100 == 0:
-            cmass.cd()
+            cmass.cd(2)
             hb.Draw('p')
             cmass.Update()
     
@@ -70,11 +72,22 @@ def main():
     for ii, event in enumerate(sntuple):
         hs.Fill(event.MR, event.R2)        
         if ii % 100 == 0:
-            cmass.cd()
+            cmass.cd(2)
             hs.Draw('p')
             cmass.Update()
 
-    cmass.cd()
+    # compute D = p(x|S)/[p(x|S)+p(x|B)]
+    hD = hs.Clone('hD'); hD.Scale(1.0/hD.Integral())
+    hB = hb.Clone('hB'); hB.Scale(1.0/hB.Integral())
+    
+    hSum = hD.Clone('hSum')
+    hSum.Add(hB)
+    hD.Divide(hSum)
+
+    cmass.cd(1)
+    hD.Draw('cont')
+    
+    cmass.cd(2)
     hs.Draw('p')
     hb.Draw('p same')
     cmass.Update()
@@ -128,7 +141,7 @@ def main():
         MR = cut.MR
         ladderPlot.add(Z, R2, MR)
     
-    cmass.cd()
+    cmass.cd(2)
     ladderPlot.draw()
     cmass.Update()
     cmass.SaveAs('.png')
