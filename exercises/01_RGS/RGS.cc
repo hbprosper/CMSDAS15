@@ -101,16 +101,10 @@ bool slurpTable(string filename,
 		vector<vector<double> >& data,
 		int start,
 		int count,
-		bool extend,
 		string treename,
 		string selection)
 {
-  cout << "reading file " << filename << endl;
-  if ( ! extend )
-    {
-      data.clear();
-      data.reserve(100000);
-    }
+  cout << "reading file " << filename[0] << endl;
   header.clear();
   int nrow=0;
 
@@ -130,6 +124,7 @@ bool slurpTable(string filename,
 	  error("slurpTable - unable to get tree "+treename);
 	  return false;
 	}
+      tree->ResetBranchAddresses();
 
       // allow for event selection when using trees
       TTreeFormula* keep = 0;
@@ -141,10 +136,10 @@ bool slurpTable(string filename,
       // get branches
       TObjArray* branches = tree->GetListOfBranches();
       int nbranches = branches->GetEntries();
-      vector<int> ibuffer(nbranches);
-      vector<float> fbuffer(nbranches);
+      vector<int>    ibuffer(nbranches);
+      vector<float>  fbuffer(nbranches);
       vector<double> dbuffer(nbranches);
-      vector<char> vtype(nbranches);
+      vector<char>   vtype(nbranches);
 
       cout << "variables" << endl;
       for(int i=0; i < nbranches; i++)
@@ -306,20 +301,21 @@ RGS::add(string filename,
   _searchdata.push_back(vvdouble());
   _weightindex.push_back(-1); // Index to weight field
   _status = 0;
-  bool extend=false;
+  vector<vector<double> >& data = _searchdata.back();
+  vector<string> header;
 
-  vector<string> var;
-  if ( ! slurpTable(filename, var, _searchdata.back(), start, numrows, 
-		    extend, _treename, _selection) )
+  if ( ! slurpTable(filename, header, data, start, numrows, 
+		    _treename, 
+		    _selection) )
     {
       cout << "**Error** unable to read file " << filename << endl;
       _status = -1;
       return;
     }
       
-  for(int i = 0; i < (int)var.size(); i++)
+  for(int i = 0; i < (int)header.size(); i++)
     {
-      if ( _weightname == var[i] )
+      if ( _weightname == header[i] )
         {
           _weightindex.back() = i;
           cout << "\tRGS will weight events with the variable "
@@ -339,26 +335,31 @@ RGS::add(vector<string>& filename,
   _searchdata.push_back(vvdouble());
   _weightindex.push_back(-1); // Index to weight field
   _status = 0;
+  vector<vector<double> >& data = _searchdata.back();
+  vector<string> header;
 
-  int index=0;
-  bool extend=false;
   for(int ifile=0; ifile < (int)filename.size(); ifile++)
     {
-      vector<string> var;
-      if ( ! slurpTable(filename[ifile], var, _searchdata.back(), 
-			start, numrows, extend, _treename, _selection) )
+      header.clear();
+      if ( ! slurpTable(filename[ifile], header, data, start, numrows, 
+			_treename, 
+			_selection) )
         {
           cout << "**Error** unable to read file " << filename[ifile] << endl;
           _status = -1;
           return;
 	}
+    }
 
-      extend = true;
-
-      for(int i = 0; i < (int)var.size(); i++)
+  for(int i = 0; i < (int)header.size(); i++)
+    {
+      if ( _weightname == header[i] )
         {
-          if ( _weightname == var[i] ) _weightindex.back() = index;
-          index++;
+          _weightindex.back() = i;
+          cout << "\tRGS will weight events with the variable "
+               << _weightname
+               << " in column " << i << endl;
+          break;
         }
     }
 }
@@ -1329,26 +1330,22 @@ RGS::_init(vstring& filenames, int start, int numrows,
 
   _status = rSUCCESS;
 
-  int index=0;
-  bool extend=false;
+  vector<string> var;
   for(int ifile=0; ifile < (int)filenames.size(); ifile++)
     {
-      vector<string> var;
+      var.clear();
       if ( ! slurpTable(filenames[ifile], 
-			var, _cutdata, start, numrows, extend, 
+			var, _cutdata, start, numrows, 
 			treename, selection) )
         {
           cout << "**Error** unable to read file " << filenames[ifile] << endl;
           _status = rFAILURE;
           return;
         }
-      extend = true;
-      
-      for(int i = 0; i < (int)var.size(); i++)
-        {
-          _varmap[var[i]] = index; // Map variable names to ordinal value
-          _var.push_back(var[i]);  // Map ordinal value to variable name
-          index++;
-        }
+    }
+  for(int i = 0; i < (int)var.size(); i++)
+    {
+      _varmap[var[i]] = i;     // Map variable name to ordinal value
+      _var.push_back(var[i]);  // Map ordinal value to variable name
     }
 }

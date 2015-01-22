@@ -47,7 +47,6 @@ bool slurpTable(std::string filename,
 		std::vector<std::vector<double> >& data,
 		int start=0,
 		int count=0,
-		bool extend=false,
 		std::string treename="",
 		std::string selection="");
 
