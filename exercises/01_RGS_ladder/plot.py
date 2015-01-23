@@ -128,7 +128,7 @@ def main():
         b  = cut.count0      #  background
         s  = cut.count1      #  signal
         if b > 5:
-            Z = 2*(s - (s+b)*log((s+b)/b))
+            Z = 2*((s+b)*log((s+b)/b)-s)
             if Z > 0:
                 Z = sqrt(Z)
             else:
